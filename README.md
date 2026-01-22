@@ -178,9 +178,10 @@ The devcontainer uses `containerEnv` with `${localEnv:...}` to pass these into t
 ```
 agent-containers/
 ├── src/
-│   ├── firewall/                 # Network firewall feature
-│   │   ├── devcontainer-feature.json
-│   │   └── install.sh
+│   ├── features/
+│   │   └── firewall/             # Network firewall feature
+│   │       ├── devcontainer-feature.json
+│   │       └── install.sh
 │   ├── rust/                     # Rust template
 │   │   ├── devcontainer-template.json
 │   │   └── .devcontainer/

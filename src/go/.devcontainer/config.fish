@@ -29,3 +29,20 @@ alias gr "go run"
 alias gt "go test"
 alias gmt "go mod tidy"
 alias gmi "go mod init"
+
+# Agent helpers
+function cdx --description 'Run codex with full sandbox access'
+    codex -a on-request \
+        --sandbox danger-full-access \
+        --skip-git-repo-check \
+        $argv 2>/dev/null
+end
+
+function ccx --description 'Run claude with full permissions'
+    claude --dangerously-skip-permissions \
+        $argv 2>/dev/null
+end
+
+function gmx --description 'Run gemini with full permissions'
+    gemini --yolo $argv 2>/dev/null
+end
