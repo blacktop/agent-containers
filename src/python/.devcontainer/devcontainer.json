@@ -1,0 +1,59 @@
+{
+  "name": "Python Agent Sandbox",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "args": {
+      "PYTHON_VERSION": "${templateOption:pythonVersion}",
+      "NODE_VERSION": "${templateOption:nodeVersion}",
+      "CLAUDE_CODE_VERSION": "${templateOption:claudeCodeVersion}",
+    },
+  },
+  "features": {
+    "ghcr.io/blacktop/agent-containers/firewall:1": {},
+  },
+  "remoteUser": "dev",
+  "workspaceFolder": "/workspace",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
+  "mounts": [
+    "source=${localEnv:HOME}/.claude,target=/home/dev/.claude,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.claude.json,target=/home/dev/.claude.json,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.codex,target=/home/dev/.codex,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.gemini,target=/home/dev/.gemini,type=bind,consistency=cached",
+    "source=agent-uv-cache-${devcontainerId},target=/home/dev/.cache/uv,type=volume",
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "anthropic.claude-code",
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "charliermarsh.ruff",
+        "ms-python.debugpy",
+        "eamodio.gitlens",
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "charliermarsh.ruff",
+        "terminal.integrated.defaultProfile.linux": "fish",
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "[python]": {
+          "editor.defaultFormatter": "charliermarsh.ruff",
+          "editor.codeActionsOnSave": {
+            "source.fixAll": "explicit",
+            "source.organizeImports": "explicit",
+          },
+        },
+      },
+    },
+  },
+  "containerEnv": {
+    "CLAUDE_CONFIG_DIR": "/home/dev/.claude",
+    "CONTEXT7_API_KEY": "${localEnv:CONTEXT7_API_KEY}",
+    "EXA_API_KEY": "${localEnv:EXA_API_KEY}",
+    "FIREWALL_ENABLED": "${templateOption:enableFirewall}",
+    "NODE_OPTIONS": "--max-old-space-size=4096",
+    "UV_CACHE_DIR": "/home/dev/.cache/uv",
+  },
+  "postStartCommand": "if [ \"$FIREWALL_ENABLED\" = \"true\" ]; then sudo /usr/local/bin/init-firewall.sh; fi && /usr/local/bin/init-gemini-extensions.sh && /usr/local/bin/init-mcp.sh",
+  "waitFor": "postStartCommand",
+}

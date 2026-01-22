@@ -1,0 +1,52 @@
+# Secrets - NEVER commit
+secrets/api-keys.json
+*.pem
+*.key
+*.crt
+
+# Build artifacts
+target/
+dist/
+*.o
+*.a
+*.so
+*.dylib
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Rust
+Cargo.lock
+**/*.rs.bk
+
+# IDE/Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Logs
+logs/
+*.log
+
+# Workspace contents (user data)
+workspace/*
+!workspace/.gitkeep
+
+# Local configs
+.env
+.env.*
+
+# macOS
+.DS_Store
+._*
+
+# launchd generated plists (installed to ~/Library/LaunchAgents)
+launchd/*.plist
+
+# Apple Containers + local tooling (local TODOs)
+todo/apple-containers/
+todo/local-tools/

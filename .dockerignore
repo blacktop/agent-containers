@@ -1,0 +1,75 @@
+# Git and version control
+.git
+.gitignore
+.github
+
+# Build artifacts (rebuilt in container)
+target/
+dist/
+*.o
+*.a
+*.so
+*.dylib
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+.npm/
+.yarn/
+
+# Rust
+Cargo.lock
+**/*.rs.bk
+
+# Development/IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*.iml
+.DS_Store
+
+# Documentation (add separately if needed)
+*.md
+!README.md
+docs/
+
+# CI/CD
+.circleci/
+.travis.yml
+.gitlab-ci.yml
+
+# Security - NEVER include these
+.env
+.env.*
+*.pem
+*.key
+*.crt
+secrets/
+credentials/
+**/secret*
+**/credential*
+**/*_key
+**/*_secret
+
+# Test artifacts
+coverage/
+.nyc_output/
+*.test
+*.spec
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+*.log
+
+# Docker build context exclusions
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Plans and local configs
+.claude/

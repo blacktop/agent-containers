@@ -1,0 +1,35 @@
+{
+  "id": "python",
+  "version": "1.0.0",
+  "name": "Python Agent Sandbox",
+  "description": "Python development container with AI coding agents (Claude Code, Codex, Gemini CLI) and network firewall sandbox",
+  "documentationURL": "https://github.com/blacktop/agent-containers/tree/main/src/python",
+  "licenseURL": "https://github.com/blacktop/agent-containers/blob/main/LICENSE",
+  "publisher": "blacktop",
+  "keywords": ["python", "claude-code", "codex", "gemini", "sandbox", "firewall", "uv"],
+  "platforms": ["Python"],
+  "options": {
+    "pythonVersion": {
+      "type": "string",
+      "description": "Python version",
+      "enum": ["3.11", "3.12", "3.13", "3.14"],
+      "default": "3.14"
+    },
+    "nodeVersion": {
+      "type": "string",
+      "description": "Node.js version (for Claude Code CLI)",
+      "enum": ["20", "22", "24"],
+      "default": "24"
+    },
+    "claudeCodeVersion": {
+      "type": "string",
+      "description": "Claude Code CLI version",
+      "default": "latest"
+    },
+    "enableFirewall": {
+      "type": "boolean",
+      "description": "Enable network firewall (allowlist only)",
+      "default": true
+    }
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "name": "Go Agent Sandbox",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "args": {
+      "GO_VERSION": "${templateOption:goVersion}",
+      "NODE_VERSION": "${templateOption:nodeVersion}",
+      "CLAUDE_CODE_VERSION": "${templateOption:claudeCodeVersion}",
+    },
+  },
+  "features": {
+    "ghcr.io/blacktop/agent-containers/firewall:1": {},
+  },
+  "runArgs": ["--cap-add=SYS_PTRACE", "--security-opt", "seccomp=unconfined"],
+  "remoteUser": "dev",
+  "workspaceFolder": "/workspace",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
+  "mounts": [
+    "source=${localEnv:HOME}/.claude,target=/home/dev/.claude,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.claude.json,target=/home/dev/.claude.json,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.codex,target=/home/dev/.codex,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.gemini,target=/home/dev/.gemini,type=bind,consistency=cached",
+    "source=agent-go-cache-${devcontainerId},target=/home/dev/go/pkg,type=volume",
+    "source=agent-go-build-cache-${devcontainerId},target=/home/dev/.cache/go-build,type=volume",
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": ["anthropic.claude-code", "golang.go", "eamodio.gitlens"],
+      "settings": {
+        "editor.formatOnSave": true,
+        "terminal.integrated.defaultProfile.linux": "fish",
+        "go.useLanguageServer": true,
+        "go.lintTool": "golangci-lint",
+        "go.lintOnSave": "package",
+        "[go]": {
+          "editor.defaultFormatter": "golang.go",
+          "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit",
+          },
+        },
+      },
+    },
+  },
+  "containerEnv": {
+    "CLAUDE_CONFIG_DIR": "/home/dev/.claude",
+    "CONTEXT7_API_KEY": "${localEnv:CONTEXT7_API_KEY}",
+    "EXA_API_KEY": "${localEnv:EXA_API_KEY}",
+    "FIREWALL_ENABLED": "${templateOption:enableFirewall}",
+    "NODE_OPTIONS": "--max-old-space-size=4096",
+    "GOPATH": "/home/dev/go",
+    "GOROOT": "/usr/local/go",
+    "GOMODCACHE": "/home/dev/go/pkg/mod",
+    "GOCACHE": "/home/dev/.cache/go-build",
+  },
+  "postStartCommand": "if [ \"$FIREWALL_ENABLED\" = \"true\" ]; then sudo /usr/local/bin/init-firewall.sh; fi && /usr/local/bin/init-gemini-extensions.sh && /usr/local/bin/init-mcp.sh",
+  "waitFor": "postStartCommand",
+}

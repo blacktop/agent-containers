@@ -1,0 +1,59 @@
+{
+  "name": "Rust Agent Sandbox",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "args": {
+      "RUST_VERSION": "${templateOption:rustVersion}",
+      "NODE_VERSION": "${templateOption:nodeVersion}",
+      "CLAUDE_CODE_VERSION": "${templateOption:claudeCodeVersion}",
+    },
+  },
+  "features": {
+    "ghcr.io/blacktop/agent-containers/firewall:1": {},
+  },
+  "runArgs": ["--cap-add=SYS_PTRACE", "--security-opt", "seccomp=unconfined"],
+  "remoteUser": "dev",
+  "workspaceFolder": "/workspace",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
+  "mounts": [
+    "source=${localEnv:HOME}/.claude,target=/home/dev/.claude,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.claude.json,target=/home/dev/.claude.json,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.codex,target=/home/dev/.codex,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.gemini,target=/home/dev/.gemini,type=bind,consistency=cached",
+    "source=agent-cargo-cache-${devcontainerId},target=/home/dev/.cargo/registry,type=volume",
+    "source=agent-cargo-git-${devcontainerId},target=/home/dev/.cargo/git,type=volume",
+    "source=agent-sccache-${devcontainerId},target=/home/dev/.cache/sccache,type=volume",
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "anthropic.claude-code",
+        "rust-lang.rust-analyzer",
+        "tamasfe.even-better-toml",
+        "vadimcn.vscode-lldb",
+        "serayuzgur.crates",
+        "eamodio.gitlens",
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "rust-lang.rust-analyzer",
+        "terminal.integrated.defaultProfile.linux": "fish",
+        "rust-analyzer.check.command": "clippy",
+      },
+    },
+  },
+  "containerEnv": {
+    "CLAUDE_CONFIG_DIR": "/home/dev/.claude",
+    "CONTEXT7_API_KEY": "${localEnv:CONTEXT7_API_KEY}",
+    "EXA_API_KEY": "${localEnv:EXA_API_KEY}",
+    "FIREWALL_ENABLED": "${templateOption:enableFirewall}",
+    "NODE_OPTIONS": "--max-old-space-size=4096",
+    "CARGO_HOME": "/home/dev/.cargo",
+    "RUSTUP_HOME": "/home/dev/.rustup",
+    "RUSTC_WRAPPER": "sccache",
+    "SCCACHE_DIR": "/home/dev/.cache/sccache",
+    "RUSTFLAGS": "-C link-arg=-fuse-ld=mold",
+  },
+  "postStartCommand": "if [ \"$FIREWALL_ENABLED\" = \"true\" ]; then sudo /usr/local/bin/init-firewall.sh; fi && /usr/local/bin/init-gemini-extensions.sh && /usr/local/bin/init-mcp.sh",
+  "waitFor": "postStartCommand",
+}

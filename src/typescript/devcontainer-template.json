@@ -1,0 +1,24 @@
+{
+  "id": "typescript",
+  "version": "1.0.0",
+  "name": "TypeScript Agent Sandbox",
+  "description": "TypeScript/Node.js development container with AI coding agents (Claude Code, Codex, Gemini CLI) and network firewall sandbox",
+  "documentationURL": "https://github.com/blacktop/agent-containers/tree/main/src/typescript",
+  "licenseURL": "https://github.com/blacktop/agent-containers/blob/main/LICENSE",
+  "publisher": "blacktop",
+  "keywords": ["typescript", "nodejs", "claude-code", "codex", "gemini", "sandbox", "firewall"],
+  "platforms": ["Node.js", "TypeScript"],
+  "options": {
+    "nodeVersion": {
+      "type": "string",
+      "description": "Node.js version",
+      "enum": ["20", "22", "24"],
+      "default": "24"
+    },
+    "claudeCodeVersion": {
+      "type": "string",
+      "description": "Claude Code CLI version",
+      "default": "latest"
+    }
+  }
+}

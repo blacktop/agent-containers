@@ -1,0 +1,35 @@
+{
+  "id": "rust",
+  "version": "1.0.0",
+  "name": "Rust Agent Sandbox",
+  "description": "Rust development container with AI coding agents (Claude Code, Codex, Gemini CLI) and network firewall sandbox",
+  "documentationURL": "https://github.com/blacktop/agent-containers/tree/main/src/rust",
+  "licenseURL": "https://github.com/blacktop/agent-containers/blob/main/LICENSE",
+  "publisher": "blacktop",
+  "keywords": ["rust", "claude-code", "codex", "gemini", "sandbox", "firewall"],
+  "platforms": ["Rust"],
+  "options": {
+    "rustVersion": {
+      "type": "string",
+      "description": "Rust toolchain version",
+      "proposals": ["stable", "nightly"],
+      "default": "stable"
+    },
+    "nodeVersion": {
+      "type": "string",
+      "description": "Node.js version (for Claude Code CLI)",
+      "enum": ["20", "22", "24"],
+      "default": "24"
+    },
+    "claudeCodeVersion": {
+      "type": "string",
+      "description": "Claude Code CLI version",
+      "default": "latest"
+    },
+    "enableFirewall": {
+      "type": "boolean",
+      "description": "Enable network firewall (allowlist only)",
+      "default": true
+    }
+  }
+}

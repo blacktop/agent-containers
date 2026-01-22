@@ -1,0 +1,60 @@
+{
+  "name": "TypeScript Agent Sandbox",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "args": {
+      "NODE_VERSION": "${templateOption:nodeVersion}",
+      "CLAUDE_CODE_VERSION": "${templateOption:claudeCodeVersion}"
+    }
+  },
+  "features": {
+    "ghcr.io/blacktop/agent-containers/firewall:1": {}
+  },
+  "remoteUser": "dev",
+  "workspaceFolder": "/workspace",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
+  "mounts": [
+    "source=${localEnv:HOME}/.claude,target=/home/dev/.claude,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.claude.json,target=/home/dev/.claude.json,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.codex,target=/home/dev/.codex,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.gemini,target=/home/dev/.gemini,type=bind,consistency=cached",
+    "source=agent-npm-cache-${devcontainerId},target=/home/dev/.npm,type=volume",
+    "source=agent-pnpm-store-${devcontainerId},target=/home/dev/.pnpm-store,type=volume"
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "anthropic.claude-code",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "eamodio.gitlens"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "terminal.integrated.defaultProfile.linux": "fish",
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "explicit"
+        },
+        "[typescript]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[typescriptreact]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[javascript]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        }
+      }
+    }
+  },
+  "containerEnv": {
+    "CLAUDE_CONFIG_DIR": "/home/dev/.claude",
+    "CONTEXT7_API_KEY": "${localEnv:CONTEXT7_API_KEY}",
+    "EXA_API_KEY": "${localEnv:EXA_API_KEY}",
+    "NODE_OPTIONS": "--max-old-space-size=4096",
+    "PNPM_STORE_PATH": "/home/dev/.pnpm-store"
+  },
+  "postStartCommand": "sudo /usr/local/bin/init-firewall.sh && /usr/local/bin/init-gemini-extensions.sh && /usr/local/bin/init-mcp.sh",
+  "waitFor": "postStartCommand"
+}

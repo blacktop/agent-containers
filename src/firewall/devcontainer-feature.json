@@ -1,0 +1,72 @@
+{
+  "id": "firewall",
+  "version": "1.0.0",
+  "name": "Network Firewall Sandbox",
+  "description": "Default-deny network firewall with allowlist for AI coding agents. Permits GitHub, npm, PyPI, crates.io, Go modules, Anthropic/OpenAI/Google APIs, and VS Code services.",
+  "documentationURL": "https://github.com/blacktop/agent-containers/tree/main/src/firewall",
+  "licenseURL": "https://github.com/blacktop/agent-containers/blob/main/LICENSE",
+  "keywords": ["firewall", "sandbox", "security", "network", "iptables"],
+  "options": {
+    "allowGithub": {
+      "type": "boolean",
+      "description": "Allow GitHub (git, API, packages, ghcr.io)",
+      "default": true
+    },
+    "allowNpm": {
+      "type": "boolean",
+      "description": "Allow npm registry",
+      "default": true
+    },
+    "allowPypi": {
+      "type": "boolean",
+      "description": "Allow PyPI (Python packages)",
+      "default": true
+    },
+    "allowCrates": {
+      "type": "boolean",
+      "description": "Allow crates.io (Rust packages)",
+      "default": true
+    },
+    "allowGo": {
+      "type": "boolean",
+      "description": "Allow Go module proxy",
+      "default": true
+    },
+    "allowAnthropic": {
+      "type": "boolean",
+      "description": "Allow Anthropic API (Claude)",
+      "default": true
+    },
+    "allowOpenai": {
+      "type": "boolean",
+      "description": "Allow OpenAI API",
+      "default": true
+    },
+    "allowGoogle": {
+      "type": "boolean",
+      "description": "Allow Google AI API",
+      "default": true
+    },
+    "allowVscode": {
+      "type": "boolean",
+      "description": "Allow VS Code services",
+      "default": true
+    },
+    "allowDebian": {
+      "type": "boolean",
+      "description": "Allow Debian/Ubuntu package repos",
+      "default": true
+    },
+    "customDomains": {
+      "type": "string",
+      "description": "Additional domains to allow (comma-separated)",
+      "default": ""
+    }
+  },
+  "containerEnv": {
+    "FIREWALL_ENABLED": "true"
+  },
+  "privileged": false,
+  "capAdd": ["NET_ADMIN", "NET_RAW"],
+  "installsAfter": ["ghcr.io/devcontainers/features/common-utils"]
+}
