@@ -77,10 +77,8 @@ jobs:
           # Use local firewall feature during CI to avoid GHCR auth issues.
           feature_ref="ghcr.io/blacktop/agent-containers/firewall:1"
           feature_local="../../features/firewall"
-          if rg -n "$feature_ref" . >/dev/null 2>&1; then
-            echo "(!) Replacing feature reference with local path"
-            find ./ -type f -print0 | xargs -0 sed -i "s|$feature_ref|$feature_local|g"
-          fi
+          echo "(!) Replacing feature reference with local path"
+          find ./ -type f -print0 | xargs -0 sed -i "s|$feature_ref|$feature_local|g"
 
       - name: Run Smoke Test
         run: |
