@@ -1,6 +1,6 @@
 {
   "id": "typescript",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "name": "TypeScript Agent Sandbox",
   "description": "TypeScript/Node.js development container with AI coding agents (Claude Code, Codex, Gemini CLI) and network firewall sandbox",
   "documentationURL": "https://github.com/blacktop/agent-containers/tree/main/src/typescript",
