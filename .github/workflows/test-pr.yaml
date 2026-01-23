@@ -139,12 +139,6 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Build firewall feature
-        uses: devcontainers/action@v1
-        with:
-          generate-features-test-matrix: "true"
-          base-path-to-features: "./src/features"
-
       - name: Test firewall feature
         run: |
           chmod +x test/firewall/test.sh

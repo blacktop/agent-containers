@@ -88,6 +88,9 @@ ENV PATH="${GOPATH}/bin:/usr/local/go/bin:${PATH}"
 RUN mkdir -p /workspace /home/dev/.claude /home/dev/.codex /home/dev/.gemini /home/dev/go /home/dev/.cache/go-build && \
     chown -R dev:dev /workspace /home/dev/.claude /home/dev/.codex /home/dev/.gemini /home/dev/go /home/dev/.cache/go-build
 
+# Ensure we have root when writing to /usr/local/bin (devcontainers may switch users).
+USER root
+
 # Install Gemini extensions on first start
 RUN install -m 0755 /dev/stdin /usr/local/bin/init-gemini-extensions.sh <<'EOF'
 #!/bin/bash
