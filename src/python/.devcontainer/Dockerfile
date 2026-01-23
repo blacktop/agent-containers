@@ -93,12 +93,26 @@ fi
 
 mkdir -p "$HOME/.gemini"
 
-gemini extensions install https://github.com/galz10/pickle-rick-extension
-gemini extensions install https://github.com/gemini-cli-extensions/jules
-gemini extensions install https://github.com/upstash/context7
-gemini extensions install https://github.com/exa-labs/exa-mcp-server
-gemini extensions install https://github.com/gemini-cli-extensions/security
-gemini extensions install https://github.com/gemini-cli-extensions/code-review
+if ! command -v gemini >/dev/null 2>&1; then
+  exit 0
+fi
+
+installed_extensions="$(gemini extensions list 2>/dev/null || true)"
+
+install_extension() {
+  local url="$1"
+  if [ -n "$installed_extensions" ] && printf '%s\n' "$installed_extensions" | grep -Fq "$url"; then
+    return 0
+  fi
+  gemini extensions install "$url" || echo "WARN: failed to install $url"
+}
+
+install_extension https://github.com/galz10/pickle-rick-extension
+install_extension https://github.com/gemini-cli-extensions/jules
+install_extension https://github.com/upstash/context7
+install_extension https://github.com/exa-labs/exa-mcp-server
+install_extension https://github.com/gemini-cli-extensions/security
+install_extension https://github.com/gemini-cli-extensions/code-review
 
 touch "$MARKER"
 EOF

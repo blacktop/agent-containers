@@ -34,6 +34,7 @@ ALLOWANTHROPIC_DEFAULT="${ALLOWANTHROPIC:-true}"
 ALLOWOPENAI_DEFAULT="${ALLOWOPENAI:-true}"
 ALLOWGOOGLE_DEFAULT="${ALLOWGOOGLE:-true}"
 ALLOWVSCODE_DEFAULT="${ALLOWVSCODE:-true}"
+ALLOWZED_DEFAULT="${ALLOWZED:-true}"
 ALLOWDEBIAN_DEFAULT="${ALLOWDEBIAN:-true}"
 CUSTOMDOMAINS_DEFAULT="${CUSTOMDOMAINS:-}"
 EOF
@@ -80,6 +81,7 @@ ALLOW_ANTHROPIC="${ALLOWANTHROPIC:-${ALLOWANTHROPIC_DEFAULT:-true}}"
 ALLOW_OPENAI="${ALLOWOPENAI:-${ALLOWOPENAI_DEFAULT:-true}}"
 ALLOW_GOOGLE="${ALLOWGOOGLE:-${ALLOWGOOGLE_DEFAULT:-true}}"
 ALLOW_VSCODE="${ALLOWVSCODE:-${ALLOWVSCODE_DEFAULT:-true}}"
+ALLOW_ZED="${ALLOWZED:-${ALLOWZED_DEFAULT:-true}}"
 ALLOW_DEBIAN="${ALLOWDEBIAN:-${ALLOWDEBIAN_DEFAULT:-true}}"
 CUSTOM_DOMAINS="${CUSTOMDOMAINS:-${CUSTOMDOMAINS_DEFAULT:-}}"
 
@@ -218,6 +220,12 @@ if [ "$ALLOW_VSCODE" = "true" ]; then
     add_domain "vscode.blob.core.windows.net"
 fi
 
+# Zed services (remote server downloads)
+if [ "$ALLOW_ZED" = "true" ]; then
+    echo "Adding Zed services..."
+    add_domain "zed.dev"
+fi
+
 # Sentry (always allowed for error reporting)
 add_domain "sentry.io"
 add_domain "o4509242995736576.ingest.us.sentry.io"
@@ -320,6 +328,7 @@ echo "Allowed services:"
 [ "$ALLOW_CRATES" = "true" ] && echo "  - crates.io (Rust packages)"
 [ "$ALLOW_GO" = "true" ] && echo "  - proxy.golang.org (Go modules)"
 [ "$ALLOW_VSCODE" = "true" ] && echo "  - VS Code marketplace"
+[ "$ALLOW_ZED" = "true" ] && echo "  - Zed (zed.dev)"
 [ "$ALLOW_DEBIAN" = "true" ] && echo "  - Debian/Ubuntu package repos"
 echo "  - Sentry (error reporting)"
 echo "  - Context7 MCP"
