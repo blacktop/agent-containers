@@ -115,6 +115,10 @@ jobs:
           shopt -s dotglob
           cp -Rp ${src_dir}/* ${dest_dir}
 
+          # Ensure host-mounted paths exist for devcontainer.json bind mounts in CI.
+          mkdir -p /home/runner/.claude /home/runner/.codex /home/runner/.gemini
+          touch /home/runner/.claude.json
+
           echo "Building dev container"
           id_label="test-container=${template_id}"
           devcontainer up --id-label ${id_label} --workspace-folder "src/${template_id}/"
