@@ -150,7 +150,7 @@ jobs:
           chmod +x test/firewall/test.sh
           echo "Feature build successful"
           # Run smoke test inside a container built with the feature
-          docker build -t firewall-feature-test - <<'EOF'
+          docker build -t firewall-feature-test -f - . <<'EOF'
           FROM debian:bookworm-slim
           RUN apt-get update && apt-get install -y --no-install-recommends bash sudo curl jq iptables ipset dnsutils iproute2 aggregate && rm -rf /var/lib/apt/lists/*
           COPY src/features/firewall /tmp/firewall
