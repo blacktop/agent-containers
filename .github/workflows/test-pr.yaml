@@ -12,6 +12,7 @@ jobs:
       templates: ${{ steps.templates.outputs.changes }}
       firewall_changed: ${{ steps.features.outputs.firewall }}
     steps:
+      - uses: actions/checkout@v6
       - uses: dorny/paths-filter@v3
         id: templates
         with:
@@ -146,7 +147,7 @@ jobs:
             if [ -f "src/$template/.devcontainer/devcontainer.json" ]; then
               echo "Validating $template devcontainer.json..."
               # Remove trailing commas for JSON validation (devcontainer.json allows them)
-              cat "src/$template/.devcontainer/devcontainer.json" | sed 's/,\s*}/}/g' | sed 's/,\s*]/]/g' | jq . > /dev/null
+              cat "src/$template/.devcontainer/devcontainer.json" | sed 's/,[[:space:]]*}/}/g' | sed 's/,[[:space:]]*]/]/g' | jq . > /dev/null
               echo "  ✓ Valid JSON"
             fi
           done
