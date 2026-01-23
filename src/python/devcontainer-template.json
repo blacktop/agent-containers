@@ -1,6 +1,6 @@
 {
   "id": "python",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "name": "Python Agent Sandbox",
   "description": "Python development container with AI coding agents (Claude Code, Codex, Gemini CLI) and network firewall sandbox",
   "documentationURL": "https://github.com/blacktop/agent-containers/tree/main/src/python",

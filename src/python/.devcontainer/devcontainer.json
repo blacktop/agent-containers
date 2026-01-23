@@ -26,7 +26,7 @@
   "mounts": [
     "source=${localEnv:HOME}/.claude,target=/home/dev/.claude,type=bind,consistency=cached",
     "source=${localEnv:HOME}/.claude.json,target=/home/dev/.claude.json,type=bind,consistency=cached",
-    "source=${localEnv:HOME}/.config/git/ignore,target=/home/dev/.config/git/ignore,type=bind,consistency=cached,readonly",
+    "source=${localEnv:HOME}/.gitignore_global,target=/home/dev/.gitignore_global,type=bind,consistency=cached,readonly",
     "source=${localEnv:HOME}/.codex,target=/home/dev/.codex,type=bind,consistency=cached",
     "source=${localEnv:HOME}/.gemini,target=/home/dev/.gemini,type=bind,consistency=cached",
     "source=agent-uv-cache-${devcontainerId},target=/home/dev/.cache/uv,type=volume",
@@ -68,6 +68,6 @@
     "NODE_OPTIONS": "--max-old-space-size=4096",
     "UV_CACHE_DIR": "/home/dev/.cache/uv",
   },
-  "postStartCommand": "if [ \"$FIREWALL_ENABLED\" = \"true\" ]; then sudo /usr/local/bin/init-firewall.sh; fi; /usr/local/bin/init-gemini-extensions.sh || true; /usr/local/bin/init-mcp.sh || true",
+  "postStartCommand": "if [ -f /home/dev/.gitignore_global ]; then git config --global core.excludesFile /home/dev/.gitignore_global; fi; if [ \"$FIREWALL_ENABLED\" = \"true\" ]; then sudo /usr/local/bin/init-firewall.sh; fi; /usr/local/bin/init-gemini-extensions.sh || true; /usr/local/bin/init-mcp.sh || true",
   "waitFor": "postStartCommand",
 }
