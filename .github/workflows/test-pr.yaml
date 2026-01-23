@@ -76,9 +76,29 @@ jobs:
 
           # Use local firewall feature during CI to avoid GHCR auth issues.
           feature_ref="ghcr.io/blacktop/agent-containers/firewall:1"
-          feature_local="../../features/firewall"
-          echo "(!) Replacing feature reference with local path"
-          find ./ -type f -print0 | xargs -0 sed -i "s|$feature_ref|$feature_local|g"
+          echo "(!) Copying firewall feature into .devcontainer/features and repo-root .devcontainer/features"
+          mkdir -p .devcontainer/features ../.devcontainer/features
+          rm -rf .devcontainer/features/firewall ../.devcontainer/features/firewall
+          cp -R ../features/firewall .devcontainer/features/firewall
+          cp -R ../features/firewall ../.devcontainer/features/firewall
+
+          if [ -f ".devcontainer/devcontainer.json" ]; then
+            feature_local="./features/firewall"
+            sed -i "s|$feature_ref|$feature_local|g; s|\.\./\.\./features/firewall|$feature_local|g; s|\.\./features/firewall|$feature_local|g" .devcontainer/devcontainer.json
+          fi
+
+          if [ -f ".devcontainer.json" ]; then
+            feature_local="./.devcontainer/features/firewall"
+            sed -i "s|$feature_ref|$feature_local|g; s|\.\./\.\./features/firewall|$feature_local|g; s|\.\./features/firewall|$feature_local|g" .devcontainer.json
+          fi
+
+          echo "(!) Feature reference after replacement:"
+          if [ -f ".devcontainer/devcontainer.json" ]; then
+            grep -E -n "features|firewall" .devcontainer/devcontainer.json || true
+          fi
+          if [ -f ".devcontainer.json" ]; then
+            grep -E -n "features|firewall" .devcontainer.json || true
+          fi
 
       - name: Run Smoke Test
         run: |
@@ -103,7 +123,10 @@ jobs:
           devcontainer exec --workspace-folder "src/${template_id}/" --id-label ${id_label} /bin/sh -c 'set -e && if [ -f "test-project/test.sh" ]; then cd test-project && if [ "$(id -u)" = "0" ]; then chmod +x test.sh; else sudo chmod +x test.sh; fi && ./test.sh; else ls -a; fi'
 
           # Clean up
-          docker rm -f $(docker container ls -f "label=${id_label}" -q)
+          containers=$(docker container ls -f "label=${id_label}" -q)
+          if [ -n "${containers}" ]; then
+            docker rm -f ${containers}
+          fi
 
   test-features:
     needs: [detect-changes]
@@ -121,8 +144,15 @@ jobs:
       - name: Test firewall feature
         run: |
           chmod +x test/firewall/test.sh
-          # Feature tests run inside the built container
           echo "Feature build successful"
+          # Run smoke test inside a container built with the feature
+          docker build -t firewall-feature-test - <<'EOF'
+          FROM debian:bookworm-slim
+          RUN apt-get update && apt-get install -y --no-install-recommends bash sudo curl jq iptables ipset dnsutils iproute2 aggregate && rm -rf /var/lib/apt/lists/*
+          COPY src/features/firewall /tmp/firewall
+          RUN /bin/bash /tmp/firewall/install.sh
+          EOF
+          docker run --rm -v "${PWD}/test/firewall:/tmp/test/firewall" firewall-feature-test /bin/bash -lc "chmod +x /tmp/test/firewall/test.sh && /usr/local/bin/init-firewall.sh && /tmp/test/firewall/test.sh"
 
   validate:
     runs-on: ubuntu-latest
@@ -153,7 +183,17 @@ jobs:
             if [ -f "src/$template/.devcontainer/devcontainer.json" ]; then
               echo "Validating $template devcontainer.json..."
               # Remove trailing commas for JSON validation (devcontainer.json allows them)
-              cat "src/$template/.devcontainer/devcontainer.json" | sed 's/,[[:space:]]*}/}/g' | sed 's/,[[:space:]]*]/]/g' | jq . > /dev/null
+              python3 - "$PWD/src/$template/.devcontainer/devcontainer.json" <<'PY'
+import json
+import re
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+text = path.read_text()
+text = re.sub(r",\s*([}\]])", r"\\1", text)
+json.loads(text)
+PY
               echo "  ✓ Valid JSON"
             fi
           done
