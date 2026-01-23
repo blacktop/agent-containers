@@ -47,6 +47,20 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-venv \
     && rm -rf /var/lib/apt/lists/*
 
+# Install LLVM 21 toolchain for llvm-sys = "211"
+RUN wget -qO- https://apt.llvm.org/llvm-snapshot.gpg.key \
+    | tee /etc/apt/trusted.gpg.d/apt.llvm.org.asc >/dev/null \
+    && echo "deb http://apt.llvm.org/bookworm/ llvm-toolchain-bookworm-21 main" \
+    > /etc/apt/sources.list.d/llvm.list \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends \
+    llvm-21 \
+    llvm-21-dev \
+    clang-21 \
+    lld-21 \
+    libclang-21-dev \
+    && rm -rf /var/lib/apt/lists/*
+
 # Disable sudo audit plugin (can fail in minimal containers)
 RUN sed -i '/sudoers_audit/d' /etc/sudo.conf || true
 
@@ -182,6 +196,7 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | \
 ENV PATH="/home/dev/.cargo/bin:${PATH}"
 ENV CARGO_HOME=/home/dev/.cargo
 ENV RUSTUP_HOME=/home/dev/.rustup
+ENV LLVM_SYS_211_PREFIX=/usr/lib/llvm-21
 
 # Install common Rust tools
 RUN cargo install cargo-watch cargo-edit cargo-expand cargo-outdated
