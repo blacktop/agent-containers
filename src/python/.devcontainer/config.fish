@@ -12,9 +12,22 @@ set -gx UV_CACHE_DIR /home/dev/.cache/uv
 # Disable greeting
 set -g fish_greeting
 
-# fzf integration
+# fzf integration (supports older fzf without --fish)
 if type -q fzf
-    fzf --fish | source
+    if fzf --help 2>/dev/null | string match -q -- '*--fish*'
+        fzf --fish | source
+    else
+        if test -f /usr/share/doc/fzf/examples/key-bindings.fish
+            source /usr/share/doc/fzf/examples/key-bindings.fish
+        else if test -f /usr/share/fzf/key-bindings.fish
+            source /usr/share/fzf/key-bindings.fish
+        end
+        if test -f /usr/share/doc/fzf/examples/completion.fish
+            source /usr/share/doc/fzf/examples/completion.fish
+        else if test -f /usr/share/fzf/completion.fish
+            source /usr/share/fzf/completion.fish
+        end
+    end
 end
 
 # Aliases

@@ -54,8 +54,8 @@ RUN ARCH=$(dpkg --print-architecture) && \
     dpkg -i /tmp/git-delta.deb && \
     rm /tmp/git-delta.deb
 
-# Create dev user with fish as default shell
-RUN useradd -m -s /usr/bin/fish -G sudo dev && \
+# Create dev user with bash as default shell (fish installed for terminals)
+RUN useradd -m -s /bin/bash -G sudo dev && \
     echo "dev ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/dev && \
     chmod 0440 /etc/sudoers.d/dev
 
@@ -164,7 +164,7 @@ RUN fish -c "fisher install jorgebucaran/hydro" && \
     fish -c "fisher install PatrickF1/fzf.fish"
 
 # Default shell and editor
-ENV SHELL=/usr/bin/fish
+ENV SHELL=/bin/bash
 ENV EDITOR=nano
 ENV VISUAL=nano
 
