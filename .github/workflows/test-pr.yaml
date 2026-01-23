@@ -182,8 +182,8 @@ jobs:
           for template in rust python go typescript; do
             if [ -f "src/$template/.devcontainer/devcontainer.json" ]; then
               echo "Validating $template devcontainer.json..."
-              # Remove trailing commas for JSON validation (devcontainer.json allows them)
-              python3 -c 'import json,re,sys; from pathlib import Path; path=Path(sys.argv[1]); text=path.read_text(); text=re.sub(r",\\s*([}\\]])", r"\\\\1", text); json.loads(text)' "$PWD/src/$template/.devcontainer/devcontainer.json"
+              # Strip // comments and trailing commas before validating with jq.
+              sed -E 's/^[[:space:]]*\\/\\/.*$//; s/\\/\\/.*$//; s/,([[:space:]]*[}\\]])/\\1/g' "src/$template/.devcontainer/devcontainer.json" | jq . > /dev/null
               echo "  ✓ Valid JSON"
             fi
           done
