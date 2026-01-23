@@ -44,6 +44,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-venv \
     && rm -rf /var/lib/apt/lists/*
 
+# Disable sudo audit plugin (can fail in minimal containers)
+RUN sed -i '/sudoers_audit/d' /etc/sudo.conf || true
+
 # Install uv (fast Python package manager)
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 

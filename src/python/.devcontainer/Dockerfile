@@ -43,6 +43,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libffi-dev \
     && rm -rf /var/lib/apt/lists/*
 
+# Disable sudo audit plugin (can fail in minimal containers)
+RUN sed -i '/sudoers_audit/d' /etc/sudo.conf || true
+
 # Install Node.js
 RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - && \
     apt-get install -y nodejs && \

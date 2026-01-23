@@ -1,8 +1,8 @@
 {
   "id": "firewall",
-  "version": "1.0.1",
+  "version": "1.0.4",
   "name": "Network Firewall Sandbox",
-  "description": "Default-deny network firewall with allowlist for AI coding agents. Permits GitHub, npm, PyPI, crates.io, Go modules, Anthropic/OpenAI/Google APIs + Gemini auth, VS Code services, and Zed services.",
+  "description": "Default-deny network firewall with allowlist for AI coding agents. Permits GitHub, npm, PyPI, crates.io, Go modules, Anthropic/OpenAI/Google APIs + ChatGPT/Codex auth, VS Code services, and Zed services.",
   "documentationURL": "https://github.com/blacktop/agent-containers/tree/main/src/features/firewall",
   "licenseURL": "https://github.com/blacktop/agent-containers/blob/main/LICENSE",
   "keywords": ["firewall", "sandbox", "security", "network", "iptables"],
@@ -39,7 +39,7 @@
     },
     "allowOpenai": {
       "type": "boolean",
-      "description": "Allow OpenAI API",
+      "description": "Allow OpenAI API + ChatGPT/Codex auth endpoints",
       "default": true
     },
     "allowGoogle": {

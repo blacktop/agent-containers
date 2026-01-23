@@ -198,6 +198,11 @@ if [ "$ALLOW_OPENAI" = "true" ]; then
     add_domain "api.openai.com"
     add_domain "platform.openai.com"
     add_domain "chat.openai.com"
+    add_domain "chatgpt.com"
+    add_domain "openai.com"
+    add_domain "auth.openai.com"
+    add_domain "setup.auth.openai.com"
+    add_domain "auth0.openai.com"
 fi
 
 # Google AI
@@ -320,7 +325,7 @@ echo "========================================================================"
 echo ""
 echo "Allowed services:"
 [ "$ALLOW_ANTHROPIC" = "true" ] && echo "  - Anthropic API (claude.ai, api.anthropic.com)"
-[ "$ALLOW_OPENAI" = "true" ] && echo "  - OpenAI API (api.openai.com)"
+[ "$ALLOW_OPENAI" = "true" ] && echo "  - OpenAI + ChatGPT/Codex (api.openai.com, chatgpt.com)"
 [ "$ALLOW_GOOGLE" = "true" ] && echo "  - Google AI + Gemini auth (generativelanguage.googleapis.com)"
 [ "$ALLOW_GITHUB" = "true" ] && echo "  - GitHub (git, API, packages, ghcr.io)"
 [ "$ALLOW_NPM" = "true" ] && echo "  - npm registry"

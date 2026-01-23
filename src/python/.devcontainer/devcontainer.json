@@ -11,12 +11,22 @@
   "features": {
     "ghcr.io/blacktop/agent-containers/firewall:1": {},
   },
+  "runArgs": [
+    "--cap-drop=ALL",
+    "--cap-add=NET_ADMIN",
+    "--cap-add=NET_RAW",
+    "--cap-add=SETUID",
+    "--cap-add=SETGID",
+    "--security-opt=apparmor=docker-default",
+    "--tmpfs=/tmp:rw,noexec,nosuid,size=1g,mode=1777",
+  ],
   "remoteUser": "dev",
   "workspaceFolder": "/workspace",
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
   "mounts": [
     "source=${localEnv:HOME}/.claude,target=/home/dev/.claude,type=bind,consistency=cached",
     "source=${localEnv:HOME}/.claude.json,target=/home/dev/.claude.json,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.config/git/ignore,target=/home/dev/.config/git/ignore,type=bind,consistency=cached,readonly",
     "source=${localEnv:HOME}/.codex,target=/home/dev/.codex,type=bind,consistency=cached",
     "source=${localEnv:HOME}/.gemini,target=/home/dev/.gemini,type=bind,consistency=cached",
     "source=agent-uv-cache-${devcontainerId},target=/home/dev/.cache/uv,type=volume",
@@ -32,10 +42,12 @@
         "charliermarsh.ruff",
         "ms-python.debugpy",
         "eamodio.gitlens",
+        "johnpapa.vscode-peacock",
       ],
       "settings": {
         "editor.formatOnSave": true,
         "editor.defaultFormatter": "charliermarsh.ruff",
+        "search.useGlobalIgnoreFiles": true,
         "terminal.integrated.defaultProfile.linux": "fish",
         "python.defaultInterpreterPath": "/usr/local/bin/python",
         "[python]": {

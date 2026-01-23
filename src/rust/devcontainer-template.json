@@ -1,6 +1,6 @@
 {
   "id": "rust",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "name": "Rust Agent Sandbox",
   "description": "Rust development container with AI coding agents (Claude Code, Codex, Gemini CLI) and network firewall sandbox",
   "documentationURL": "https://github.com/blacktop/agent-containers/tree/main/src/rust",
