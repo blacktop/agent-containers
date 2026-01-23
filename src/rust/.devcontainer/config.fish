@@ -46,17 +46,13 @@ alias cf "cargo fmt"
 
 # Agent helpers
 function cdx --description 'Run codex with full sandbox access'
-    codex -a on-request \
-        --sandbox danger-full-access \
-        --skip-git-repo-check \
-        $argv 2>/dev/null
+    codex --dangerously-bypass-approvals-and-sandbox $argv
 end
 
 function ccx --description 'Run claude with full permissions'
-    claude --dangerously-skip-permissions \
-        $argv 2>/dev/null
+    claude --dangerously-skip-permissions $argv
 end
 
 function gmx --description 'Run gemini with full permissions'
-    gemini --yolo $argv 2>/dev/null
+    gemini --yolo $argv
 end
