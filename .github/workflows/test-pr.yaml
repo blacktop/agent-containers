@@ -1,4 +1,4 @@
-name: Test Dev Container Templates & Features
+name: "PR - Test Updated Templates"
 
 on:
   pull_request:
@@ -9,37 +9,107 @@ jobs:
   detect-changes:
     runs-on: ubuntu-latest
     outputs:
-      templates: ${{ steps.filter.outputs.templates }}
-      features: ${{ steps.filter.outputs.features }}
-      templates_list: ${{ steps.filter.outputs.templates_files }}
-      features_list: ${{ steps.filter.outputs.features_files }}
+      templates: ${{ steps.templates.outputs.changes }}
+      firewall_changed: ${{ steps.features.outputs.firewall }}
     steps:
-      - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
-        id: filter
+        id: templates
         with:
-          list-files: json
           filters: |
-            templates:
-              - 'src/rust/**'
-              - 'src/python/**'
-              - 'src/go/**'
-              - 'src/typescript/**'
-            features:
-              - 'src/firewall/**'
+            rust: src/rust/**
+            python: src/python/**
+            go: src/go/**
+            typescript: src/typescript/**
+      - uses: dorny/paths-filter@v3
+        id: features
+        with:
+          filters: |
+            firewall: src/features/firewall/**
+
+  test-templates:
+    needs: [detect-changes]
+    if: needs.detect-changes.outputs.templates != '[]' && needs.detect-changes.outputs.templates != ''
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    strategy:
+      matrix:
+        templates: ${{ fromJSON(needs.detect-changes.outputs.templates) }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install latest devcontainer CLI
+        run: npm install -g @devcontainers/cli
+
+      - name: Generating tests for '${{ matrix.templates }}'
+        run: echo "${{ matrix.templates }}"
+
+      - name: Configure template
+        run: |
+          set -e
+          cd src/${{ matrix.templates }}
+
+          # Configure templates only if `devcontainer-template.json` contains the `options` property.
+          optionProp=( $(jq -r '.options' devcontainer-template.json) )
+
+          if [ "${optionProp}" != "" ] && [ "${optionProp}" != "null" ] ; then  
+            options=( $(jq -r '.options | keys[]' devcontainer-template.json) )
+
+            if [ "${options[0]}" != "" ] && [ "${options[0]}" != "null" ] ; then
+              echo "(!) Configuring template options within 'src/${{ matrix.templates }}' folder"
+              for option in "${options[@]}"
+              do
+                option_key="\${templateOption:$option}"
+                option_value=$(jq -r ".options | .${option} | .default" devcontainer-template.json)
+
+                if [ "${option_value}" = "" ] || [ "${option_value}" = "null" ] ; then
+                  echo "Template '${{ matrix.templates }}' is missing a default value for option '${option}'"
+                  exit 1
+                fi
+
+                echo "(!) Replacing '${option_key}' with '${option_value}'"
+                option_value_escaped=$(sed -e 's/[]\/$*.^[]/\\&/g' <<<"${option_value}")
+                find ./ -type f -print0 | xargs -0 sed -i "s/${option_key}/${option_value_escaped}/g"
+              done
+            fi
+          fi
+
+      - name: Run Smoke Test
+        run: |
+          template_id="${{ matrix.templates }}"
+          src_dir="test/${template_id}"
+
+          if [ ! -d "$(pwd)/${src_dir}" ] ; then  
+            echo "Template '${{ matrix.templates }}' is missing a test folder"
+            exit 1
+          fi
+
+          dest_dir="src/${template_id}/test-project"
+          mkdir -p ${dest_dir}
+          shopt -s dotglob
+          cp -Rp ${src_dir}/* ${dest_dir}
+
+          echo "Building dev container"
+          id_label="test-container=${template_id}"
+          devcontainer up --id-label ${id_label} --workspace-folder "src/${template_id}/"
+
+          echo "Running Smoke Test"
+          devcontainer exec --workspace-folder "src/${template_id}/" --id-label ${id_label} /bin/sh -c 'set -e && if [ -f "test-project/test.sh" ]; then cd test-project && if [ "$(id -u)" = "0" ]; then chmod +x test.sh; else sudo chmod +x test.sh; fi && ./test.sh; else ls -a; fi'
+
+          # Clean up
+          docker rm -f $(docker container ls -f "label=${id_label}" -q)
 
   test-features:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.features == 'true'
+    needs: [detect-changes]
+    if: needs.detect-changes.outputs.firewall_changed == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Build firewall feature
         uses: devcontainers/action@v1
         with:
           generate-features-test-matrix: "true"
-          base-path-to-features: "./src/firewall"
+          base-path-to-features: "./src/features"
 
       - name: Test firewall feature
         run: |
@@ -47,34 +117,10 @@ jobs:
           # Feature tests run inside the built container
           echo "Feature build successful"
 
-  test-templates:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.templates == 'true'
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        template: [rust, python, go, typescript]
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build ${{ matrix.template }} template
-        run: |
-          cd src/${{ matrix.template }}/.devcontainer
-          docker build -t agent-${{ matrix.template }}:test .
-
-      - name: Test ${{ matrix.template }} template
-        run: |
-          chmod +x test/${{ matrix.template }}/test.sh
-          docker run --rm agent-${{ matrix.template }}:test /bin/bash -c "$(cat test/${{ matrix.template }}/test.sh)"
-
   validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Validate devcontainer-template.json files
         run: |
@@ -88,9 +134,9 @@ jobs:
 
       - name: Validate devcontainer-feature.json
         run: |
-          if [ -f "src/firewall/devcontainer-feature.json" ]; then
+          if [ -f "src/features/firewall/devcontainer-feature.json" ]; then
             echo "Validating firewall feature..."
-            cat "src/firewall/devcontainer-feature.json" | jq . > /dev/null
+            cat "src/features/firewall/devcontainer-feature.json" | jq . > /dev/null
             echo "  ✓ Valid JSON"
           fi
 

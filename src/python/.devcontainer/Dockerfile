@@ -78,10 +78,6 @@ RUN npm install -g \
 RUN mkdir -p /workspace /home/dev/.claude /home/dev/.codex /home/dev/.gemini /home/dev/.cache/uv && \
     chown -R dev:dev /workspace /home/dev/.claude /home/dev/.codex /home/dev/.gemini /home/dev/.cache/uv
 
-# Switch to dev user
-USER dev
-WORKDIR /home/dev
-
 # Install Gemini extensions on first start
 RUN install -m 0755 /dev/stdin /usr/local/bin/init-gemini-extensions.sh <<'EOF'
 #!/bin/bash
@@ -141,6 +137,10 @@ if [ -n "${EXA_API_KEY:-}" ]; then
   fi
 fi
 EOF
+
+# Switch to dev user
+USER dev
+WORKDIR /home/dev
 
 # Install uv (fast Python package manager)
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh

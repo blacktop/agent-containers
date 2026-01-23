@@ -80,10 +80,6 @@ RUN npm install -g \
 RUN mkdir -p /workspace /home/dev/.claude /home/dev/.codex /home/dev/.gemini /home/dev/.cache/sccache && \
     chown -R dev:dev /workspace /home/dev/.claude /home/dev/.codex /home/dev/.gemini /home/dev/.cache/sccache
 
-# Switch to dev user for Rust installation
-USER dev
-WORKDIR /home/dev
-
 # Install Gemini extensions on first start
 RUN install -m 0755 /dev/stdin /usr/local/bin/init-gemini-extensions.sh <<'EOF'
 #!/bin/bash
@@ -143,6 +139,10 @@ if [ -n "${EXA_API_KEY:-}" ]; then
   fi
 fi
 EOF
+
+# Switch to dev user for Rust installation
+USER dev
+WORKDIR /home/dev
 
 # Install Rust toolchain
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | \
