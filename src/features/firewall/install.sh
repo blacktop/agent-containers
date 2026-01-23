@@ -203,6 +203,9 @@ if [ "$ALLOW_GOOGLE" = "true" ]; then
     echo "Adding Google AI API..."
     add_domain "generativelanguage.googleapis.com"
     add_domain "aiplatform.googleapis.com"
+    add_domain "aistudio.google.com"
+    add_domain "accounts.google.com"
+    add_domain "oauth2.googleapis.com"
 fi
 
 # VS Code services
@@ -310,7 +313,7 @@ echo ""
 echo "Allowed services:"
 [ "$ALLOW_ANTHROPIC" = "true" ] && echo "  - Anthropic API (claude.ai, api.anthropic.com)"
 [ "$ALLOW_OPENAI" = "true" ] && echo "  - OpenAI API (api.openai.com)"
-[ "$ALLOW_GOOGLE" = "true" ] && echo "  - Google AI API (generativelanguage.googleapis.com)"
+[ "$ALLOW_GOOGLE" = "true" ] && echo "  - Google AI + Gemini auth (generativelanguage.googleapis.com)"
 [ "$ALLOW_GITHUB" = "true" ] && echo "  - GitHub (git, API, packages, ghcr.io)"
 [ "$ALLOW_NPM" = "true" ] && echo "  - npm registry"
 [ "$ALLOW_PYPI" = "true" ] && echo "  - PyPI (Python packages)"

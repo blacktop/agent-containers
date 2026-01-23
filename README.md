@@ -62,7 +62,7 @@ A standalone feature that adds a default-deny firewall with allowlist for common
 - proxy.golang.org (Go modules)
 - Anthropic API (Claude)
 - OpenAI API
-- Google AI API
+- Google AI API + Gemini auth (AI Studio / OAuth)
 - VS Code services
 - Debian/Ubuntu repos
 - Sentry (error reporting)
