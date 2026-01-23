@@ -107,12 +107,23 @@ if ! command -v gemini >/dev/null 2>&1; then
   exit 0
 fi
 
+set +e
 installed_extensions="$(gemini extensions list 2>/dev/null || true)"
 
 install_extension() {
   local url="$1"
-  if [ -n "$installed_extensions" ] && printf '%s\n' "$installed_extensions" | grep -Fq "$url"; then
-    return 0
+  local repo="${url##*/}"
+  local short="${repo%-extension}"
+  if [ -n "$installed_extensions" ]; then
+    if printf '%s\n' "$installed_extensions" | grep -Fq "$url"; then
+      return 0
+    fi
+    if printf '%s\n' "$installed_extensions" | grep -Fq "$repo"; then
+      return 0
+    fi
+    if [ "$short" != "$repo" ] && printf '%s\n' "$installed_extensions" | grep -Fq "$short"; then
+      return 0
+    fi
   fi
   gemini extensions install "$url" || echo "WARN: failed to install $url"
 }

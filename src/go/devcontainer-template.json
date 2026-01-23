@@ -1,12 +1,20 @@
 {
   "id": "go",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "name": "Go Agent Sandbox",
   "description": "Go development container with AI coding agents (Claude Code, Codex, Gemini CLI) and network firewall sandbox",
   "documentationURL": "https://github.com/blacktop/agent-containers/tree/main/src/go",
   "licenseURL": "https://github.com/blacktop/agent-containers/blob/main/LICENSE",
   "publisher": "blacktop",
-  "keywords": ["go", "golang", "claude-code", "codex", "gemini", "sandbox", "firewall"],
+  "keywords": [
+    "go",
+    "golang",
+    "claude-code",
+    "codex",
+    "gemini",
+    "sandbox",
+    "firewall"
+  ],
   "platforms": ["Go"],
   "options": {
     "goVersion": {
