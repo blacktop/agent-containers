@@ -25,8 +25,10 @@
     "vscode": {
       "extensions": [
         "anthropic.claude-code",
+        "openai.chatgpt",
+        "google.gemini-cli-vscode-ide-companion",
         "ms-python.python",
-        "ms-python.vscode-pylance",
+        "astral-sh.ty",
         "charliermarsh.ruff",
         "ms-python.debugpy",
         "eamodio.gitlens",
@@ -54,6 +56,6 @@
     "NODE_OPTIONS": "--max-old-space-size=4096",
     "UV_CACHE_DIR": "/home/dev/.cache/uv",
   },
-  "postStartCommand": "if [ \"$FIREWALL_ENABLED\" = \"true\" ]; then sudo /usr/local/bin/init-firewall.sh; fi && /usr/local/bin/init-gemini-extensions.sh && /usr/local/bin/init-mcp.sh",
+  "postStartCommand": "if [ \"$FIREWALL_ENABLED\" = \"true\" ]; then sudo /usr/local/bin/init-firewall.sh; fi; /usr/local/bin/init-gemini-extensions.sh || true; /usr/local/bin/init-mcp.sh || true",
   "waitFor": "postStartCommand",
 }

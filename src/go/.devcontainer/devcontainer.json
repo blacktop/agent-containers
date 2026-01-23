@@ -25,7 +25,13 @@
   ],
   "customizations": {
     "vscode": {
-      "extensions": ["anthropic.claude-code", "golang.go", "eamodio.gitlens"],
+      "extensions": [
+        "anthropic.claude-code",
+        "openai.chatgpt",
+        "google.gemini-cli-vscode-ide-companion",
+        "golang.go",
+        "eamodio.gitlens",
+      ],
       "settings": {
         "editor.formatOnSave": true,
         "terminal.integrated.defaultProfile.linux": "fish",
@@ -52,6 +58,6 @@
     "GOMODCACHE": "/home/dev/go/pkg/mod",
     "GOCACHE": "/home/dev/.cache/go-build",
   },
-  "postStartCommand": "if [ \"$FIREWALL_ENABLED\" = \"true\" ]; then sudo /usr/local/bin/init-firewall.sh; fi && /usr/local/bin/init-gemini-extensions.sh && /usr/local/bin/init-mcp.sh",
+  "postStartCommand": "if [ \"$FIREWALL_ENABLED\" = \"true\" ]; then sudo /usr/local/bin/init-firewall.sh; fi; /usr/local/bin/init-gemini-extensions.sh || true; /usr/local/bin/init-mcp.sh || true",
   "waitFor": "postStartCommand",
 }
