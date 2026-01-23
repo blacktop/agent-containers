@@ -183,17 +183,7 @@ jobs:
             if [ -f "src/$template/.devcontainer/devcontainer.json" ]; then
               echo "Validating $template devcontainer.json..."
               # Remove trailing commas for JSON validation (devcontainer.json allows them)
-              python3 - "$PWD/src/$template/.devcontainer/devcontainer.json" <<'PY'
-import json
-import re
-import sys
-from pathlib import Path
-
-path = Path(sys.argv[1])
-text = path.read_text()
-text = re.sub(r",\s*([}\]])", r"\\1", text)
-json.loads(text)
-PY
+              python3 -c 'import json,re,sys; from pathlib import Path; path=Path(sys.argv[1]); text=path.read_text(); text=re.sub(r",\\s*([}\\]])", r"\\\\1", text); json.loads(text)' "$PWD/src/$template/.devcontainer/devcontainer.json"
               echo "  ✓ Valid JSON"
             fi
           done
