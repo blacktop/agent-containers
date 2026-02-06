@@ -1,0 +1,218 @@
+;; =============================================================================
+;; agent.sb - macOS Sandbox Profile for AI Agents
+;; =============================================================================
+;; Restricts AI agent execution to specific directories and network endpoints.
+;; Use for running agents directly on macOS (without containers).
+;;
+;; Usage:
+;;   sandbox-exec -f agent.sb -D WORKSPACE=/path/to/workspace -D HOME=$HOME claude
+;;
+;; Parameters:
+;;   WORKSPACE - Directory where agent can read/write files
+;;   HOME      - User home directory (for explicit denials)
+;;
+;; Security:
+;;   - Denies all access by default
+;;   - Allows workspace directory read/write only
+;;   - Allows outbound HTTPS/HTTP/DNS only
+;;   - Blocks all inbound network connections
+;;   - Blocks access to sensitive macOS directories
+;; =============================================================================
+
+(version 1)
+
+;; Default deny everything
+(deny default)
+
+;; ------------------------------------
+;; Process Execution
+;; ------------------------------------
+;; Allow common shells and utilities
+(allow process-exec
+    (literal "/usr/bin/env")
+    (literal "/bin/sh")
+    (literal "/bin/bash")
+    (literal "/bin/zsh")
+    (literal "/usr/bin/dirname")
+    (literal "/usr/bin/basename")
+    (literal "/usr/bin/which")
+    (literal "/usr/bin/git")
+    (literal "/usr/bin/curl")
+    (literal "/usr/bin/ssh"))
+
+;; Allow Node.js (for Claude Code, Codex, Gemini)
+(allow process-exec
+    (subpath "/usr/local/bin")
+    (subpath "/opt/homebrew/bin")
+    (subpath "/opt/homebrew/Cellar"))
+
+;; Allow process forking (needed for agents)
+(allow process-fork)
+
+;; ------------------------------------
+;; Workspace Access (Parameterized)
+;; ------------------------------------
+;; Full read/write access to workspace only
+(allow file-read* file-write* file-ioctl
+    (subpath (param "WORKSPACE")))
+
+;; Allow creating/modifying files in workspace
+(allow file-write-create file-write-data file-write-flags
+    file-write-mode file-write-owner file-write-setugid
+    file-write-times file-write-unlink
+    (subpath (param "WORKSPACE")))
+
+;; ------------------------------------
+;; System Libraries (Read-Only)
+;; ------------------------------------
+;; Required for binary execution
+(allow file-read*
+    (subpath "/usr/lib")
+    (subpath "/usr/local/lib")
+    (subpath "/opt/homebrew/lib")
+    (subpath "/opt/homebrew/Cellar")
+    (subpath "/System/Library/Frameworks")
+    (subpath "/System/Library/PrivateFrameworks")
+    (subpath "/System/Library/CoreServices")
+    (literal "/dev/null")
+    (literal "/dev/urandom")
+    (literal "/dev/random")
+    (literal "/dev/tty"))
+
+;; Dyld cache and shared libraries
+(allow file-read*
+    (subpath "/System/Volumes/Preboot")
+    (literal "/private/var/db/dyld/dyld_shared_cache_arm64e")
+    (literal "/private/var/db/dyld/dyld_shared_cache_x86_64"))
+
+;; ------------------------------------
+;; Configuration Files (Read-Only)
+;; ------------------------------------
+(allow file-read*
+    (literal "/etc/hosts")
+    (literal "/etc/resolv.conf")
+    (literal "/etc/localtime")
+    (literal "/etc/ssl/cert.pem")
+    (subpath "/etc/ssl/certs")
+    (subpath "/private/etc/ssl"))
+
+;; SSL certificates
+(allow file-read*
+    (subpath "/System/Library/Keychains")
+    (subpath "/Library/Keychains"))
+
+;; ------------------------------------
+;; Agent Config Directories
+;; ------------------------------------
+;; Allow read/write to agent config dirs
+(allow file-read* file-write*
+    (subpath (string-append (param "HOME") "/.claude"))
+    (subpath (string-append (param "HOME") "/.codex"))
+    (subpath (string-append (param "HOME") "/.gemini"))
+    (subpath (string-append (param "HOME") "/.npm"))
+    (subpath (string-append (param "HOME") "/.cache/node")))
+
+;; ------------------------------------
+;; Temporary Files
+;; ------------------------------------
+;; Allow temp directory access
+(allow file-read* file-write*
+    (subpath "/private/tmp")
+    (subpath "/var/folders")
+    (subpath (string-append (param "HOME") "/.Trash")))
+
+;; Allow creating temp files
+(allow file-write-create
+    (regex #"^/private/tmp/")
+    (regex #"^/var/folders/"))
+
+;; ------------------------------------
+;; Network Access (Outbound Only)
+;; ------------------------------------
+;; Allow outbound HTTPS connections (port 443)
+(allow network-outbound
+    (remote tcp "*:443"))
+
+;; Allow outbound HTTP (port 80) - for redirects
+(allow network-outbound
+    (remote tcp "*:80"))
+
+;; DNS resolution
+(allow network-outbound
+    (remote udp "*:53")
+    (remote tcp "*:53"))
+
+;; SSH (for git)
+(allow network-outbound
+    (remote tcp "*:22"))
+
+;; CRITICAL: Block all inbound connections
+(deny network-inbound)
+
+;; ------------------------------------
+;; Mach IPC (Required for System Services)
+;; ------------------------------------
+;; Allow necessary system services
+(allow mach-lookup
+    (global-name "com.apple.SecurityServer")
+    (global-name "com.apple.cfnetwork.AuthBrokerAgent")
+    (global-name "com.apple.nsurlsessiond")
+    (global-name "com.apple.trustd.agent")
+    (global-name "com.apple.trustd")
+    (global-name "com.apple.SystemConfiguration.configd")
+    (global-name "com.apple.system.logger")
+    (global-name "com.apple.system.notification_center")
+    (global-name "com.apple.coreservices.launchservicesd"))
+
+;; ------------------------------------
+;; Sysctl (System Information)
+;; ------------------------------------
+(allow sysctl-read
+    (sysctl-name "hw.machine")
+    (sysctl-name "hw.model")
+    (sysctl-name "hw.ncpu")
+    (sysctl-name "hw.physicalcpu")
+    (sysctl-name "hw.logicalcpu")
+    (sysctl-name "hw.memsize")
+    (sysctl-name "kern.hostname")
+    (sysctl-name "kern.osrelease")
+    (sysctl-name "kern.ostype")
+    (sysctl-name "kern.osversion")
+    (sysctl-name "kern.version")
+    (sysctl-name-prefix "net."))
+
+;; ------------------------------------
+;; Signals
+;; ------------------------------------
+(allow signal (target self))
+
+;; ------------------------------------
+;; EXPLICIT DENIALS (Security Critical)
+;; ------------------------------------
+;; Block access to sensitive home directories
+(deny file-read* file-write*
+    (subpath (string-append (param "HOME") "/.ssh"))
+    (subpath (string-append (param "HOME") "/.aws"))
+    (subpath (string-append (param "HOME") "/.gnupg"))
+    (subpath (string-append (param "HOME") "/.kube"))
+    (subpath (string-append (param "HOME") "/Library/Keychains")))
+
+;; Block access to system directories (write)
+(deny file-write*
+    (subpath "/System")
+    (subpath "/usr")
+    (subpath "/bin")
+    (subpath "/sbin")
+    (subpath "/Library")
+    (subpath "/Applications"))
+
+;; Block access to other volumes
+(deny file-read* file-write*
+    (subpath "/Volumes"))
+
+;; Block access to browser data
+(deny file-read* file-write*
+    (regex #".*/Google/Chrome.*")
+    (regex #".*/Firefox.*")
+    (regex #".*/Safari.*")
+    (regex #".*/Chromium.*"))
