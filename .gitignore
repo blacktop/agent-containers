@@ -47,6 +47,3 @@ workspace/*
 # launchd generated plists (installed to ~/Library/LaunchAgents)
 launchd/*.plist
 
-# Apple Containers + local tooling (local TODOs)
-todo/apple-containers/
-todo/local-tools/

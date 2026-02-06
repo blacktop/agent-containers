@@ -173,6 +173,84 @@ if [ -n "${EXA_API_KEY:-}" ]; then
 fi
 EOF
 
+# GitHub App token helpers (least-privilege git auth)
+RUN install -m 0755 /dev/stdin /usr/local/bin/github-app-token.sh <<'EOF'
+#!/bin/bash
+set -euo pipefail
+
+APP_ID="${GITHUB_APP_ID:-}"
+INSTALL_ID="${GITHUB_APP_INSTALL_ID:-}"
+KEY_PATH="${GITHUB_APP_KEY_PATH:-}"
+KEY_BASE64="${GITHUB_APP_KEY_BASE64:-}"
+CONFIGURE_GIT=false
+QUIET=false
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --app-id) APP_ID="$2"; shift 2 ;;
+        --install-id) INSTALL_ID="$2"; shift 2 ;;
+        --key) KEY_PATH="$2"; shift 2 ;;
+        --key-base64) KEY_BASE64="$2"; shift 2 ;;
+        --configure-git) CONFIGURE_GIT=true; shift ;;
+        --quiet|-q) QUIET=true; shift ;;
+        *) shift ;;
+    esac
+done
+
+[[ -z "$APP_ID" ]] && { echo "Error: GITHUB_APP_ID required" >&2; exit 1; }
+[[ -z "$INSTALL_ID" ]] && { echo "Error: GITHUB_APP_INSTALL_ID required" >&2; exit 1; }
+
+if [[ -n "$KEY_BASE64" ]]; then
+    PRIVATE_KEY=$(echo "$KEY_BASE64" | base64 -d)
+elif [[ -f "$KEY_PATH" ]]; then
+    PRIVATE_KEY=$(cat "$KEY_PATH")
+else
+    echo "Error: No private key provided" >&2
+    exit 1
+fi
+
+HEADER=$(printf '{"alg":"RS256","typ":"JWT"}' | openssl base64 -e -A | tr '+/' '-_' | tr -d '=')
+NOW=$(date +%s)
+IAT=$((NOW - 60))
+EXP=$((NOW + 600))
+PAYLOAD=$(printf '{"iat":%d,"exp":%d,"iss":"%s"}' "$IAT" "$EXP" "$APP_ID" | openssl base64 -e -A | tr '+/' '-_' | tr -d '=')
+SIGNATURE=$(printf '%s.%s' "$HEADER" "$PAYLOAD" | openssl dgst -sha256 -sign <(echo "$PRIVATE_KEY") | openssl base64 -e -A | tr '+/' '-_' | tr -d '=')
+JWT="${HEADER}.${PAYLOAD}.${SIGNATURE}"
+
+RESPONSE=$(curl -sf -X POST \
+    -H "Authorization: Bearer $JWT" \
+    -H "Accept: application/vnd.github+json" \
+    -H "X-GitHub-Api-Version: 2022-11-28" \
+    "https://api.github.com/app/installations/${INSTALL_ID}/access_tokens") || {
+    echo "Error: Failed to get installation token" >&2
+    exit 1
+}
+
+TOKEN=$(echo "$RESPONSE" | grep -o '"token":"[^"]*"' | cut -d'"' -f4)
+[[ -z "$TOKEN" ]] && { echo "Error: No token in API response" >&2; exit 1; }
+
+if [[ "$CONFIGURE_GIT" == true ]]; then
+    git config --global --unset-all url."https://x-access-token:${TOKEN}@github.com/".insteadOf >/dev/null 2>&1 || true
+    git config --global --add url."https://x-access-token:${TOKEN}@github.com/".insteadOf "https://github.com/"
+    git config --global --add url."https://x-access-token:${TOKEN}@github.com/".insteadOf "git@github.com:"
+    [[ "$QUIET" != true ]] && echo "Git configured with GitHub App token"
+else
+    echo "$TOKEN"
+fi
+EOF
+
+RUN install -m 0755 /dev/stdin /usr/local/bin/init-github-app.sh <<'EOF'
+#!/bin/bash
+set -euo pipefail
+
+[[ -z "${GITHUB_APP_ID:-}" ]] && exit 0
+[[ -z "${GITHUB_APP_INSTALL_ID:-}" ]] && exit 0
+[[ -z "${GITHUB_APP_KEY_BASE64:-}" && -z "${GITHUB_APP_KEY_PATH:-}" ]] && exit 0
+
+/usr/local/bin/github-app-token.sh --configure-git --quiet
+echo "GitHub App authentication configured"
+EOF
+
 # Switch to dev user
 USER dev
 WORKDIR /home/dev
