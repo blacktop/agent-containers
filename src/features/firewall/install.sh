@@ -347,6 +347,7 @@ chmod +x /usr/local/bin/init-firewall.sh
 
 # Allow passwordless sudo for the firewall script
 # This will be configured for the actual user by the template
+mkdir -p /etc/sudoers.d
 echo "# Firewall feature - allow any user to run init-firewall.sh" > /etc/sudoers.d/firewall
 echo "ALL ALL=(root) NOPASSWD: /usr/local/bin/init-firewall.sh" >> /etc/sudoers.d/firewall
 chmod 0440 /etc/sudoers.d/firewall
