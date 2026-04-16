@@ -7,7 +7,7 @@ Go development container with AI coding agents (Claude Code, Codex, Gemini CLI) 
 
 | Options Id | Description | Type | Default Value |
 |-----|-----|-----|-----|
-| goVersion | Go version | string | 1.25 |
+| goVersion | Go version | string | 1.26 |
 | nodeVersion | Node.js version (for Claude Code CLI) | string | 24 |
 | claudeCodeVersion | Claude Code CLI version | string | latest |
 | enableFirewall | Enable network firewall (allowlist only) | boolean | true |
