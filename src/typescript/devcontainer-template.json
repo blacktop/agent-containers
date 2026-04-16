@@ -27,6 +27,11 @@
       "type": "string",
       "description": "Claude Code CLI version",
       "default": "latest"
+    },
+    "enableFirewall": {
+      "type": "boolean",
+      "description": "Enable network firewall (allowlist only)",
+      "default": true
     }
   }
 }

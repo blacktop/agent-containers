@@ -60,6 +60,14 @@
   },
   "containerEnv": {
     "CLAUDE_CONFIG_DIR": "/home/dev/.claude",
+    "FIREWALL_ENABLED": "${templateOption:enableFirewall}",
+    "NODE_OPTIONS": "--max-old-space-size=4096",
+    "GOPATH": "/home/dev/go",
+    "GOROOT": "/usr/local/go",
+    "GOMODCACHE": "/home/dev/go/pkg/mod",
+    "GOCACHE": "/home/dev/.cache/go-build"
+  },
+  "remoteEnv": {
     "CONTEXT7_API_KEY": "${localEnv:CONTEXT7_API_KEY}",
     "EXA_API_KEY": "${localEnv:EXA_API_KEY}",
     "GIT_USER_NAME": "${localEnv:GIT_USER_NAME}",
@@ -68,13 +76,7 @@
     "GITHUB_APP_INSTALL_ID": "${localEnv:GITHUB_APP_INSTALL_ID}",
     "GITHUB_APP_KEY_BASE64": "${localEnv:GITHUB_APP_KEY_BASE64}",
     "GITHUB_APP_KEY_PATH": "${localEnv:GITHUB_APP_KEY_PATH}",
-    "SSH_DIR": "${localEnv:SSH_DIR}",
-    "FIREWALL_ENABLED": "${templateOption:enableFirewall}",
-    "NODE_OPTIONS": "--max-old-space-size=4096",
-    "GOPATH": "/home/dev/go",
-    "GOROOT": "/usr/local/go",
-    "GOMODCACHE": "/home/dev/go/pkg/mod",
-    "GOCACHE": "/home/dev/.cache/go-build",
+    "SSH_DIR": "${localEnv:SSH_DIR}"
   },
   "postStartCommand": "if [ -f /home/dev/.gitignore_global ]; then git config --global core.excludesFile /home/dev/.gitignore_global; fi; if [ -n \"${GIT_USER_NAME:-}\" ]; then git config --global user.name \"$GIT_USER_NAME\"; fi; if [ -n \"${GIT_USER_EMAIL:-}\" ]; then git config --global user.email \"$GIT_USER_EMAIL\"; fi; app_auth_configured=false; if [ -n \"${GITHUB_APP_ID:-}\" ] && [ -n \"${GITHUB_APP_INSTALL_ID:-}\" ] && { [ -n \"${GITHUB_APP_KEY_BASE64:-}\" ] || [ -n \"${GITHUB_APP_KEY_PATH:-}\" ]; }; then /usr/local/bin/init-github-app.sh || echo \"Warning: GitHub App auth failed (continuing anyway)\"; app_auth_configured=true; fi; if [ \"$app_auth_configured\" != \"true\" ]; then key_path=\"\"; if [ -n \"${SSH_DIR:-}\" ] && [ -f \"$SSH_DIR\" ]; then key_path=\"$SSH_DIR\"; elif [ -n \"${SSH_DIR:-}\" ] && [ -d \"$SSH_DIR\" ] && [ -f \"$SSH_DIR/id_ed25519\" ]; then key_path=\"$SSH_DIR/id_ed25519\"; elif [ -f \"/home/dev/.ssh/blacktop-bot\" ]; then key_path=\"/home/dev/.ssh/blacktop-bot\"; elif [ -f \"/home/dev/.ssh/id_ed25519\" ]; then key_path=\"/home/dev/.ssh/id_ed25519\"; fi; if [ -n \"$key_path\" ]; then mkdir -p /home/dev/.ssh; printf \"Host github.com\\n  HostName github.com\\n  User git\\n  IdentityFile %s\\n  IdentitiesOnly yes\\n\" \"$key_path\" > /home/dev/.ssh/config; chmod 600 /home/dev/.ssh/config; fi; fi; if [ \"$FIREWALL_ENABLED\" = \"true\" ]; then sudo /usr/local/bin/init-firewall.sh; fi; /usr/local/bin/init-gemini-extensions.sh || true; /usr/local/bin/init-mcp.sh || true",
   "waitFor": "postStartCommand",
