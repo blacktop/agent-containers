@@ -95,7 +95,7 @@ RUN npm install -g \
 
 # Setup directories
 RUN mkdir -p /workspace /home/dev/.claude /home/dev/.codex /home/dev/.gemini /home/dev/.cache/sccache && \
-    chown -R dev:dev /workspace /home/dev/.claude /home/dev/.codex /home/dev/.gemini /home/dev/.cache/sccache
+    chown -R dev:dev /workspace /home/dev/.claude /home/dev/.codex /home/dev/.gemini /home/dev/.cache
 
 # Ensure we have root when writing to /usr/local/bin (devcontainers may switch users).
 USER root

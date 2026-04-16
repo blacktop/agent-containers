@@ -20,6 +20,7 @@
     "--security-opt=apparmor=docker-default",
     "--tmpfs=/tmp:rw,noexec,nosuid,size=1g,mode=1777",
   ],
+  "init": true,
   "remoteUser": "dev",
   "workspaceFolder": "/workspace",
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
@@ -30,6 +31,7 @@
     "source=${localEnv:HOME}/.codex,target=/home/dev/.codex,type=bind,consistency=cached",
     "source=${localEnv:HOME}/.gemini,target=/home/dev/.gemini,type=bind,consistency=cached",
     "source=agent-uv-cache-${devcontainerId},target=/home/dev/.cache/uv,type=volume",
+    "source=${localWorkspaceFolder}/.devcontainer,target=/workspace/.devcontainer,type=bind,readonly",
   ],
   "customizations": {
     "vscode": {
@@ -64,6 +66,12 @@
     "CLAUDE_CONFIG_DIR": "/home/dev/.claude",
     "FIREWALL_ENABLED": "${templateOption:enableFirewall}",
     "NODE_OPTIONS": "--max-old-space-size=4096",
+    "NPM_CONFIG_AUDIT": "true",
+    "NPM_CONFIG_FUND": "false",
+    "NPM_CONFIG_IGNORE_SCRIPTS": "true",
+    "NPM_CONFIG_MIN_RELEASE_AGE": "3",
+    "NPM_CONFIG_SAVE_EXACT": "true",
+    "PYTHONDONTWRITEBYTECODE": "1",
     "UV_CACHE_DIR": "/home/dev/.cache/uv"
   },
   "remoteEnv": {

@@ -20,6 +20,7 @@
     "--security-opt=apparmor=docker-default",
     "--tmpfs=/tmp:rw,noexec,nosuid,size=1g,mode=1777",
   ],
+  "init": true,
   "remoteUser": "dev",
   "workspaceFolder": "/workspace",
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
@@ -31,6 +32,7 @@
     "source=${localEnv:HOME}/.gemini,target=/home/dev/.gemini,type=bind,consistency=cached",
     "source=agent-go-cache-${devcontainerId},target=/home/dev/go/pkg,type=volume",
     "source=agent-go-build-cache-${devcontainerId},target=/home/dev/.cache/go-build,type=volume",
+    "source=${localWorkspaceFolder}/.devcontainer,target=/workspace/.devcontainer,type=bind,readonly",
   ],
   "customizations": {
     "vscode": {
@@ -65,7 +67,12 @@
     "GOPATH": "/home/dev/go",
     "GOROOT": "/usr/local/go",
     "GOMODCACHE": "/home/dev/go/pkg/mod",
-    "GOCACHE": "/home/dev/.cache/go-build"
+    "GOCACHE": "/home/dev/.cache/go-build",
+    "NPM_CONFIG_AUDIT": "true",
+    "NPM_CONFIG_FUND": "false",
+    "NPM_CONFIG_IGNORE_SCRIPTS": "true",
+    "NPM_CONFIG_MIN_RELEASE_AGE": "3",
+    "NPM_CONFIG_SAVE_EXACT": "true"
   },
   "remoteEnv": {
     "CONTEXT7_API_KEY": "${localEnv:CONTEXT7_API_KEY}",

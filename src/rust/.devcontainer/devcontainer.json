@@ -20,6 +20,7 @@
     "--security-opt=apparmor=docker-default",
     "--tmpfs=/tmp:rw,noexec,nosuid,size=1g,mode=1777",
   ],
+  "init": true,
   "remoteUser": "dev",
   "workspaceFolder": "/workspace",
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
@@ -32,6 +33,7 @@
     "source=agent-cargo-cache-${devcontainerId},target=/home/dev/.cargo/registry,type=volume",
     "source=agent-cargo-git-${devcontainerId},target=/home/dev/.cargo/git,type=volume",
     "source=agent-sccache-${devcontainerId},target=/home/dev/.cache/sccache,type=volume",
+    "source=${localWorkspaceFolder}/.devcontainer,target=/workspace/.devcontainer,type=bind,readonly",
   ],
   "customizations": {
     "vscode": {
@@ -63,6 +65,11 @@
     "RUSTUP_HOME": "/home/dev/.rustup",
     "RUSTC_WRAPPER": "sccache",
     "SCCACHE_DIR": "/home/dev/.cache/sccache",
+    "NPM_CONFIG_AUDIT": "true",
+    "NPM_CONFIG_FUND": "false",
+    "NPM_CONFIG_IGNORE_SCRIPTS": "true",
+    "NPM_CONFIG_MIN_RELEASE_AGE": "3",
+    "NPM_CONFIG_SAVE_EXACT": "true",
     "RUSTFLAGS": "-C link-arg=-fuse-ld=mold"
   },
   "remoteEnv": {

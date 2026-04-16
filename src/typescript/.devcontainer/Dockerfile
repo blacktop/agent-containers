@@ -82,8 +82,8 @@ RUN npm install -g \
     prettier
 
 # Setup directories
-RUN mkdir -p /workspace /home/dev/.claude /home/dev/.codex /home/dev/.gemini /home/dev/.npm /home/dev/.pnpm-store && \
-    chown -R dev:dev /workspace /home/dev/.claude /home/dev/.codex /home/dev/.gemini /home/dev/.npm /home/dev/.pnpm-store
+RUN mkdir -p /workspace /home/dev/.claude /home/dev/.codex /home/dev/.gemini /home/dev/.cache /home/dev/.npm /home/dev/.pnpm-store && \
+    chown -R dev:dev /workspace /home/dev/.claude /home/dev/.codex /home/dev/.gemini /home/dev/.cache /home/dev/.npm /home/dev/.pnpm-store
 
 # Ensure we have root when writing to /usr/local/bin (devcontainers may switch users).
 USER root
