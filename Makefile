@@ -1,4 +1,4 @@
-.PHONY: bump
+.PHONY: bump sync
 
 ## bump: increment patch version and commit for release
 bump:
@@ -7,3 +7,7 @@ bump:
 		git add src/ && \
 		git commit -m "chore: Bump version to $$version" && \
 		echo "Bumped to $$version — push to main to trigger release"
+
+## sync: pull Claude session history from running/stopped devcontainers to host
+sync:
+	@./build/sync-sessions.sh

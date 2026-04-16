@@ -126,7 +126,7 @@ RUN /root/.local/bin/uv python install ${PYTHON_VERSION} && \
 # Git Delta (better diffs)
 # =============================================================================
 RUN ARCH=$(dpkg --print-architecture) && \
-    curl -fsSL "https://github.com/dandavison/delta/releases/download/0.18.2/git-delta_0.18.2_${ARCH}.deb" \
+    curl -fsSL "https://github.com/dandavison/delta/releases/download/0.19.2/git-delta_0.19.2_${ARCH}.deb" \
     -o /tmp/git-delta.deb && \
     dpkg -i /tmp/git-delta.deb && \
     rm /tmp/git-delta.deb

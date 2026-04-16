@@ -20,7 +20,7 @@
     "nodeVersion": {
       "type": "string",
       "description": "Node.js version",
-      "enum": ["20", "22", "24"],
+      "enum": ["22", "24"],
       "default": "24"
     },
     "claudeCodeVersion": {

@@ -1,7 +1,7 @@
 # Go Agent Sandbox
 # AI coding agents (Claude Code, Codex, Gemini CLI) with fish shell + hydro prompt
 
-ARG GO_VERSION=1.25
+ARG GO_VERSION=1.26
 ARG NODE_VERSION=24
 FROM golang:${GO_VERSION}-bookworm
 
@@ -59,7 +59,7 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # Install git-delta for better diffs
 RUN ARCH=$(dpkg --print-architecture) && \
-    curl -fsSL "https://github.com/dandavison/delta/releases/download/0.18.2/git-delta_0.18.2_${ARCH}.deb" \
+    curl -fsSL "https://github.com/dandavison/delta/releases/download/0.19.2/git-delta_0.19.2_${ARCH}.deb" \
     -o /tmp/git-delta.deb && \
     dpkg -i /tmp/git-delta.deb && \
     rm /tmp/git-delta.deb
@@ -81,7 +81,8 @@ RUN mkdir -p ${NPM_CONFIG_PREFIX} && \
 RUN npm install -g \
     @anthropic-ai/claude-code@${CLAUDE_CODE_VERSION} \
     @openai/codex \
-    @google/gemini-cli
+    @google/gemini-cli && \
+    chown -R dev:dev ${NPM_CONFIG_PREFIX}
 
 # Setup Go environment for dev user
 ENV GOPATH=/home/dev/go
@@ -139,6 +140,29 @@ install_extension https://github.com/gemini-cli-extensions/security
 install_extension https://github.com/gemini-cli-extensions/code-review
 
 touch "$MARKER"
+EOF
+
+# Bypass Claude Code onboarding when CLAUDE_CODE_OAUTH_TOKEN is set.
+# Workaround for anthropics/claude-code#8938.
+RUN install -m 0755 /dev/stdin /usr/local/bin/init-claude-auth.sh <<'EOF'
+#!/bin/bash
+set -e
+
+[ -z "${CLAUDE_CODE_OAUTH_TOKEN:-}" ] && exit 0
+command -v claude >/dev/null 2>&1 || exit 0
+
+CLAUDE_JSON="$HOME/.claude.json"
+
+if [ -f "$CLAUDE_JSON" ] && jq -e '.hasCompletedOnboarding == true' "$CLAUDE_JSON" >/dev/null 2>&1; then
+  exit 0
+fi
+
+timeout 30 claude -p ok >/dev/null 2>&1 || true
+
+if [ -f "$CLAUDE_JSON" ]; then
+  tmp=$(mktemp)
+  jq '.hasCompletedOnboarding = true' "$CLAUDE_JSON" > "$tmp" && mv "$tmp" "$CLAUDE_JSON"
+fi
 EOF
 
 # Configure MCP servers for Claude Code and Codex
