@@ -153,6 +153,8 @@ The templates mount your local agent configurations:
 }
 ```
 
+The workspace is mounted read-write, but `.devcontainer`, `.git/config`, and `.git/hooks` are rebound read-only inside the container so agent edits cannot change host-side devcontainer config, repo config, or hooks.
+
 Ensure these directories exist on your host:
 ```bash
 mkdir -p ~/.claude ~/.codex ~/.gemini

@@ -118,6 +118,7 @@ jobs:
           # Ensure host-mounted paths exist for devcontainer.json bind mounts in CI.
           mkdir -p /home/runner/.claude /home/runner/.codex /home/runner/.gemini
           touch /home/runner/.claude.json
+          git -C "src/${template_id}" init
 
           echo "Building dev container"
           id_label="test-container=${template_id}"
@@ -177,11 +178,12 @@ jobs:
 
       - name: Validate devcontainer.json files
         run: |
+          set -euo pipefail
           for template in rust python go typescript; do
             if [ -f "src/$template/.devcontainer/devcontainer.json" ]; then
               echo "Validating $template devcontainer.json..."
               # Strip // comments and trailing commas before validating with jq.
-              sed -E 's/^[[:space:]]*\\/\\/.*$//; s/\\/\\/.*$//; s/,([[:space:]]*[}\\]])/\\1/g' "src/$template/.devcontainer/devcontainer.json" | jq . > /dev/null
+              perl -0pe 's{^[[:space:]]*//.*$}{}mg; s{//.*$}{}mg; s/,(\s*[\}\]])/$1/g' "src/$template/.devcontainer/devcontainer.json" | jq . > /dev/null
               echo "  ✓ Valid JSON"
             fi
           done

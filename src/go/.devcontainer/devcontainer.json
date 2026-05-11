@@ -32,6 +32,8 @@
     "source=agent-go-cache-${devcontainerId},target=/home/dev/go/pkg,type=volume",
     "source=agent-go-build-cache-${devcontainerId},target=/home/dev/.cache/go-build,type=volume",
     "source=${localWorkspaceFolder}/.devcontainer,target=/workspace/.devcontainer,type=bind,readonly",
+    "source=${localWorkspaceFolder}/.git/config,target=/workspace/.git/config,type=bind,readonly",
+    "source=${localWorkspaceFolder}/.git/hooks,target=/workspace/.git/hooks,type=bind,readonly",
   ],
   "customizations": {
     "vscode": {

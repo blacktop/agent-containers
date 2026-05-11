@@ -31,6 +31,8 @@
     "source=agent-npm-cache-${devcontainerId},target=/home/dev/.npm,type=volume",
     "source=agent-pnpm-store-${devcontainerId},target=/home/dev/.pnpm-store,type=volume",
     "source=${localWorkspaceFolder}/.devcontainer,target=/workspace/.devcontainer,type=bind,readonly",
+    "source=${localWorkspaceFolder}/.git/config,target=/workspace/.git/config,type=bind,readonly",
+    "source=${localWorkspaceFolder}/.git/hooks,target=/workspace/.git/hooks,type=bind,readonly",
   ],
   "customizations": {
     "vscode": {
