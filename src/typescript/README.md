@@ -9,6 +9,7 @@ TypeScript/Node.js development container with AI coding agents (Claude Code, Cod
 |-----|-----|-----|-----|
 | nodeVersion | Node.js version | string | 24 |
 | claudeCodeVersion | Claude Code CLI version | string | latest |
+| enableFirewall | Enable network firewall (allowlist only) | boolean | true |
 
 
 
